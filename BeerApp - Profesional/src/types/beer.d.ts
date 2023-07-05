@@ -1,4 +1,4 @@
-import { TYPE } from './';
+import { TYPE } from "./";
 
 interface Beer {
   id: string;
@@ -17,6 +17,7 @@ interface Beer {
   website_url: string;
   state: string;
   street: string;
+  isChecked: boolean;
 }
 
 export type { Beer };

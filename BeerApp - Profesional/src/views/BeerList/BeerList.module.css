@@ -1,0 +1,9 @@
+.select {
+  width: 100px;
+}
+
+.pagination {
+  display: inline-block;
+ justify-content: center;
+ display: flex;
+}
