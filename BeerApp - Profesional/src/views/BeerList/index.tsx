@@ -55,7 +55,6 @@ const BeerList = () => {
             return b.name > a.name ? 1 : -1;
           }
         });
-        console.log(beersCopy);
         return beersCopy;
       });
     };
