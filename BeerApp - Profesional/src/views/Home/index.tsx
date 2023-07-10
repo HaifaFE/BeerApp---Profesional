@@ -18,7 +18,6 @@ const Home = () => {
   const [reload, setReload] = useState(false);
   const [filteredResults, setFilteredResults] = useState<Array<Beer>>([]);
   const [beerList1, setBeerList1] = useState<Array<Beer>>([]);
-
   const [beerList, setBeerList] = useState<Array<Beer>>([]);
 
   const stored =
@@ -41,9 +40,8 @@ const Home = () => {
   };
   useEffect(() => {
     localStorage.setItem("listOfFavorites", JSON.stringify(savedList));
-    if (beerList.length !== 0)
-      localStorage.setItem("listOfBeers", JSON.stringify(beerList));
-  }, [savedList, beerList]);
+  }, [savedList]);
+
   const handleChange = (e: any) => {
     const { name, checked } = e.target;
     const newList = beerList.map((beer: Beer) => {
