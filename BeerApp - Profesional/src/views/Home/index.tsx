@@ -19,14 +19,12 @@ const Home = () => {
   const [filteredResults, setFilteredResults] = useState<Array<Beer>>([]);
   const [beerList1, setBeerList1] = useState<Array<Beer>>([]);
   const [beerList, setBeerList] = useState<Array<Beer>>([]);
-
   const stored =
     localStorage["listOfFavorites"] !== undefined
       ? JSON.parse(localStorage["listOfFavorites"])
       : "";
 
   const [savedList, setSavedList] = useState(stored);
-
   const searchItems = (searchValue: string) => {
     setSearchInput(searchValue);
     setFilteredResults(
@@ -40,7 +38,7 @@ const Home = () => {
   };
   useEffect(() => {
     localStorage.setItem("listOfFavorites", JSON.stringify(savedList));
-  }, [savedList]);
+  }, [savedList, remove]);
 
   const handleChange = (e: any) => {
     const { name, checked } = e.target;
@@ -69,15 +67,27 @@ const Home = () => {
         ? JSON.parse(localStorage["listOfBeers"])
         : beerList1;
     setBeerList(listOfBeers);
-    if (remove || reload) {
+    if (remove === true) {
       setSavedList([]);
-      localStorage.clear();
+      localStorage.setItem("listOfFavorites", JSON.stringify(savedList));
+
       const newList = beerList.map((beer: Beer) => {
-        if (beer.isChecked) beer.isChecked = !beer.isChecked;
+        if (beer.isChecked) beer.isChecked = false;
         return beer;
       });
-
-      setBeerList(newList);
+      setBeerList1(newList);
+      localStorage.clear();
+      setRemove(!remove);
+    }
+    if (reload === true) {
+      const listOfBeers =
+        localStorage["listOfBeers"] !== undefined
+          ? JSON.parse(localStorage["listOfBeers"])
+          : beerList;
+      setBeerList(listOfBeers);
+      setSavedList(savedList);
+      localStorage.setItem("listOfFavorites", JSON.stringify(savedList));
+      setReload(!reload);
     }
   }, [beerList1, remove, reload]);
 
@@ -97,7 +107,7 @@ const Home = () => {
                 <Button
                   variant="contained"
                   onClick={() => {
-                    setReload(!reload);
+                    setReload(true);
                   }}
                 >
                   Reload list
@@ -143,7 +153,7 @@ const Home = () => {
                   variant="contained"
                   size="small"
                   onClick={() => {
-                    setRemove(!remove);
+                    setRemove(true);
                   }}
                 >
                   Remove all items
