@@ -15,17 +15,17 @@ import styles from "./Home.module.css";
 const Home = () => {
   const [searchInput, setSearchInput] = useState("");
   const [remove, setRemove] = useState(false);
+  const [reload, setReload] = useState(false);
   const [filteredResults, setFilteredResults] = useState<Array<Beer>>([]);
-  const listOfBeers =
-    localStorage["listOfBeers"] !== undefined
-      ? JSON.parse(localStorage["listOfBeers"])
-      : "";
+  const [beerList1, setBeerList1] = useState<Array<Beer>>([]);
 
-  const [beerList, setBeerList] = useState(listOfBeers);
+  const [beerList, setBeerList] = useState<Array<Beer>>([]);
+
   const stored =
     localStorage["listOfFavorites"] !== undefined
       ? JSON.parse(localStorage["listOfFavorites"])
       : "";
+
   const [savedList, setSavedList] = useState(stored);
 
   const searchItems = (searchValue: string) => {
@@ -39,7 +39,11 @@ const Home = () => {
       })
     );
   };
-
+  useEffect(() => {
+    localStorage.setItem("listOfFavorites", JSON.stringify(savedList));
+    if (beerList.length !== 0)
+      localStorage.setItem("listOfBeers", JSON.stringify(beerList));
+  }, [savedList, beerList]);
   const handleChange = (e: any) => {
     const { name, checked } = e.target;
     const newList = beerList.map((beer: Beer) => {
@@ -58,28 +62,28 @@ const Home = () => {
       return beer;
     });
     setBeerList(newList);
-  };
-  useEffect(() => {
-    localStorage.setItem("listOfFavorites", JSON.stringify(savedList));
     localStorage.setItem("listOfBeers", JSON.stringify(beerList));
-  }, [savedList, beerList]);
-  // eslint-disable-next-line
+  };
+
   useEffect(() => {
-    beerList.length === 0
-      ? fetchData.bind(this, setBeerList)
-      : setBeerList(JSON.parse(localStorage.getItem("listOfBeers") || ""));
-    if (remove === true) {
+    const listOfBeers =
+      localStorage["listOfBeers"] !== undefined
+        ? JSON.parse(localStorage["listOfBeers"])
+        : beerList1;
+    setBeerList(listOfBeers);
+    if (remove || reload) {
+      setSavedList([]);
+      localStorage.clear();
       const newList = beerList.map((beer: Beer) => {
-        const updatedItem = {
-          ...beer,
-          isChecked: false,
-        };
-        return updatedItem;
+        if (beer.isChecked) beer.isChecked = !beer.isChecked;
+        return beer;
       });
+
       setBeerList(newList);
     }
-  }, [remove]);
+  }, [beerList1, remove, reload]);
 
+  useEffect(() => fetchData.bind(this, setBeerList1), []);
   return (
     <article>
       <section>
@@ -95,7 +99,7 @@ const Home = () => {
                 <Button
                   variant="contained"
                   onClick={() => {
-                    setRemove(!remove);
+                    setReload(!reload);
                   }}
                 >
                   Reload list
@@ -107,7 +111,7 @@ const Home = () => {
                       <li key={index.toString()}>
                         <Checkbox
                           color="primary"
-                          checked={beer?.isChecked}
+                          checked={beer.isChecked || false}
                           name={beer.name}
                           onChange={(e: SelectChangeEvent) => handleChange(e)}
                         />
@@ -119,8 +123,9 @@ const Home = () => {
                   : beerList.map((beer: Beer, index: number) => (
                       <li key={index.toString()}>
                         <Checkbox
+                          color="primary"
                           name={beer.name}
-                          checked={beer?.isChecked}
+                          checked={beer.isChecked || false}
                           onChange={(e: SelectChangeEvent) => handleChange(e)}
                         />
                         <Link component={RouterLink} to={`/beer/${beer.id}`}>
@@ -140,9 +145,7 @@ const Home = () => {
                   variant="contained"
                   size="small"
                   onClick={() => {
-                    setSavedList([]);
                     setRemove(!remove);
-                    localStorage.clear();
                   }}
                 >
                   Remove all items
